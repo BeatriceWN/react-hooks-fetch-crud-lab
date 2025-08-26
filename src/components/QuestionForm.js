@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 function QuestionForm({ addQuestion }) {
   const [formData, setFormData] = useState({
@@ -7,14 +7,23 @@ function QuestionForm({ addQuestion }) {
     answer2: "",
     answer3: "",
     answer4: "",
-    correctIndex: 0,
+    correctIndex: "0", // use string for select value
   });
+
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   function handleChange(event) {
     const { name, value } = event.target;
     setFormData({
       ...formData,
-      [name]: name === "correctIndex" ? parseInt(value) : value,
+      [name]: value, // always use string for select
     });
   }
 
@@ -29,7 +38,7 @@ function QuestionForm({ addQuestion }) {
         formData.answer3,
         formData.answer4,
       ],
-      correctIndex: formData.correctIndex,
+      correctIndex: Number(formData.correctIndex), // convert to number for backend
     };
 
     fetch("http://localhost:4000/questions", {
@@ -39,15 +48,17 @@ function QuestionForm({ addQuestion }) {
     })
       .then((r) => r.json())
       .then((createdQuestion) => {
-        addQuestion(createdQuestion); // update state in App
-        setFormData({
-          prompt: "",
-          answer1: "",
-          answer2: "",
-          answer3: "",
-          answer4: "",
-          correctIndex: 0,
-        });
+        addQuestion(createdQuestion);
+        if (isMounted.current) {
+          setFormData({
+            prompt: "",
+            answer1: "",
+            answer2: "",
+            answer3: "",
+            answer4: "",
+            correctIndex: "0",
+          });
+        }
       });
   }
 
@@ -107,10 +118,10 @@ function QuestionForm({ addQuestion }) {
             value={formData.correctIndex}
             onChange={handleChange}
           >
-            <option value={0}>{formData.answer1}</option>
-            <option value={1}>{formData.answer2}</option>
-            <option value={2}>{formData.answer3}</option>
-            <option value={3}>{formData.answer4}</option>
+            <option value="0">{formData.answer1}</option>
+            <option value="1">{formData.answer2}</option>
+            <option value="2">{formData.answer3}</option>
+            <option value="3">{formData.answer4}</option>
           </select>
         </label>
         <button type="submit">Add Question</button>

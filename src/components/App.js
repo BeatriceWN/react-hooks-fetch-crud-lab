@@ -19,28 +19,39 @@ function App() {
   }
 
   function deleteQuestion(id) {
-    fetch(`http://localhost:4000/questions/${id}`, {
-      method: "DELETE",
-    }).then(() => {
-      setQuestions(questions.filter((question) => question.id !== id));
-    });
-  }
+  fetch(`http://localhost:4000/questions/${id}`, {
+    method: "DELETE",
+  }).then(() => {
+    setQuestions((prevQuestions) =>
+      prevQuestions.filter((question) => question.id !== id)
+    );
+  });
+}
 
-  function updateQuestion(id, correctIndex) {
-    fetch(`http://localhost:4000/questions/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ correctIndex }),
-    })
-      .then((res) => res.json())
-      .then((updated) => {
-        setQuestions(
-          questions.map((question) =>
-            question.id === id ? updated : question
-          )
-        );
-      });
-  }
+function updateQuestion(id, correctIndex) {
+  // optimistically update UI first
+  setQuestions((prevQuestions) =>
+    prevQuestions.map((question) =>
+      question.id === id ? { ...question, correctIndex } : question
+    )
+  );
+
+  // then PATCH to server
+  fetch(`http://localhost:4000/questions/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ correctIndex }),
+  })
+    .then((res) => res.json())
+    .then((updated) => {
+      // sync with server response
+      setQuestions((prevQuestions) =>
+        prevQuestions.map((question) =>
+          question.id === id ? updated : question
+        )
+      );
+    });
+}
 
   return (
     <main>

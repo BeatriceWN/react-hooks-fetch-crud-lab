@@ -13,13 +13,17 @@ function QuestionItem({ question, deleteQuestion, updateQuestion }) {
       <h5>Prompt: {prompt}</h5>
       <label>
         Correct Answer:
-        <select value={correctIndex} onChange={handleChange}>
-          {answers.map((a, i) => (
-            <option key={i} value={i}>
-              {a}
+        <select
+          value={correctIndex.toString()}
+          onChange={handleChange}
+          aria-label="Correct Answer"
+        >
+          {answers.map((ans, idx) => (
+            <option key={idx} value={idx.toString()}>
+              {ans}
             </option>
           ))}
-          </select>
+        </select>
       </label>
       <button onClick={() => deleteQuestion(id)}>Delete Question</button>
     </li>
@@ -27,4 +31,3 @@ function QuestionItem({ question, deleteQuestion, updateQuestion }) {
 }
 
 export default QuestionItem;
-

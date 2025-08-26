@@ -1,0 +1,11 @@
+const { render, screen, fireEvent } = require('@testing-library/react');
+const App = require('../components/App');
+
+test('updates the answer when the dropdown is changed', () => {
+  render(<App />);
+  
+  const dropdown = screen.getByLabelText(/Correct Answer/);
+  fireEvent.change(dropdown, { target: { value: '3' } });
+  
+  expect(dropdown.value).toBe('3');
+});
